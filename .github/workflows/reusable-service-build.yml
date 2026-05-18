@@ -1,0 +1,89 @@
+name: Reusable Service Build
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+
+      image_tag:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      SERVICE_PATH: src/${{ inputs.service }}
+      IMAGE_NAME: ${{ inputs.service }}:${{ inputs.image_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      ########################################################
+      # Runtime Setup
+      ########################################################
+
+      - name: Setup Go
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Setup Node
+        if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Java
+        if: inputs.service == 'adservice'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Dotnet
+        if: inputs.service == 'cartservice'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      ########################################################
+      # Dependency Install
+      ########################################################
+
+      - name: Go Dependencies
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: go mod download
+
+      - name: Node Dependencies
+        if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: npm ci
+
+      - name: Python Dependencies
+        if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: |
+          pip install -r requirements.txt
+
+      - name: Java Dependencies
+        if: inputs.service == 'adservice'
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: chmod +x gradlew && ./gradlew dependencies
+
+      - name: Dotnet Restore
+        if: inputs.service == 'cartservice'
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: dotnet restore

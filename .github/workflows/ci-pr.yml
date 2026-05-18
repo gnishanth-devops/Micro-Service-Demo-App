@@ -1,0 +1,43 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Services
+        id: set-matrix
+        run: ./scripts/detect_changed_services.sh
+
+  service-build:
+    needs: detect-changes
+
+    if: needs.detect-changes.outputs.matrix != '[]'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+
+    uses: ./.github/workflows/reusable-service-build.yml
+    with:
+      service: ${{ matrix.service }}
+      image_tag: pr-${{ github.event.number }}-${{ github.sha }}
