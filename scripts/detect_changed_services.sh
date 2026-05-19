@@ -4,56 +4,60 @@ set -e
 
 SERVICES=()
 
-if [[ \"$GITHUB_EVENT_NAME\" == \"pull_request\" ]]; then
-    BASE_REF=\"origin/${GITHUB_BASE_REF}\"
+if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+    BASE_REF="origin/${GITHUB_BASE_REF}"
 else
-    BASE_REF=HEAD~1
+    BASE_REF="HEAD~1"
 fi
 
-CHANGED_FILES=$(git diff --name-only $BASE_REF...HEAD)
+echo "Using base ref: $BASE_REF"
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/frontend/'; then
-  SERVICES+=(\"frontend\")
+CHANGED_FILES=$(git diff --name-only ${BASE_REF}...HEAD)
+
+echo "$CHANGED_FILES"
+
+if echo "$CHANGED_FILES" | grep -q '^src/frontend/'; then
+  SERVICES+=("frontend")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/checkoutservice/'; then
-  SERVICES+=(\"checkoutservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/checkoutservice/'; then
+  SERVICES+=("checkoutservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/shippingservice/'; then
-  SERVICES+=(\"shippingservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/shippingservice/'; then
+  SERVICES+=("shippingservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/productcatalogservice/'; then
-  SERVICES+=(\"productcatalogservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/productcatalogservice/'; then
+  SERVICES+=("productcatalogservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/cartservice/'; then
-  SERVICES+=(\"cartservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/cartservice/'; then
+  SERVICES+=("cartservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/paymentservice/'; then
-  SERVICES+=(\"paymentservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/paymentservice/'; then
+  SERVICES+=("paymentservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/currencyservice/'; then
-  SERVICES+=(\"currencyservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/currencyservice/'; then
+  SERVICES+=("currencyservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/recommendationservice/'; then
-  SERVICES+=(\"recommendationservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/recommendationservice/'; then
+  SERVICES+=("recommendationservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/emailservice/'; then
-  SERVICES+=(\"emailservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/emailservice/'; then
+  SERVICES+=("emailservice")
 fi
 
-if echo \"$CHANGED_FILES\" | grep -q '^src/adservice/'; then
-  SERVICES+=(\"adservice\")
+if echo "$CHANGED_FILES" | grep -q '^src/adservice/'; then
+  SERVICES+=("adservice")
 fi
 
-JSON=$(printf '%s\n' \"${SERVICES[@]}\" | jq -R . | jq -cs .)
+JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -cs .)
 
-echo \"Detected services: $JSON\"
+echo "Detected services: $JSON"
 
-echo \"matrix=$JSON\" >> $GITHUB_OUTPUT
+echo "matrix=$JSON" >> $GITHUB_OUTPUT
