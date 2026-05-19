@@ -85,5 +85,5 @@ jobs:
 
       - name: Dotnet Restore
         if: inputs.service == 'cartservice'
-        working-directory: ${{ env.SERVICE_PATH }}
+        working-directory: ${{ env.SERVICE_PATH }}/src
         run: dotnet restore
