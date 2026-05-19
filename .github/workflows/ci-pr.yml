@@ -35,7 +35,7 @@ jobs:
       matrix:
         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     uses: ./.github/workflows/reusable-docker-build.yml
-    secrests: inherit
+    secrets: inherit
     with:
       service: ${{ matrix.service }}
       image_name: gnishanth777/online_boutique
