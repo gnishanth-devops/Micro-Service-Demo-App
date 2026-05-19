@@ -40,3 +40,4 @@ jobs:
     uses: ./.github/workflows/reusable-service-build.yml
     with:
       service: ${{ matrix.service }}
+      image_tag: pr-${{ github.event.number }}-${{ github.sha }}
