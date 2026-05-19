@@ -25,7 +25,7 @@ COPY --from=builder /go/bin/frontend /src/server
 COPY ./templates ./templates
 COPY ./static ./static
 
-#ENV GOTRACEBACK=single
+ENV GOTRACEBACK=single
 
 EXPOSE 8080
 
