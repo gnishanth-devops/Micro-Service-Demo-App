@@ -22,7 +22,7 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:10.0.0-noble-chiseled@sha256:b857c8cb
 
 WORKDIR /app
 COPY --from=builder /cartservice .
-#EXPOSE 7070
+EXPOSE 7070
 ENV DOTNET_EnableDiagnostics=0 \
     ASPNETCORE_HTTP_PORTS=7070
 USER 1000
