@@ -26,7 +26,8 @@ jobs:
       security-events: write
 
     env:
-      SERVICE_PATH: src/${{ inputs.service }}
+      #SERVICE_PATH: src/${{ inputs.service }}
+      SERVICE_PATH: ${{ inputs.service == 'cartservice' && 'src/cartservice/src' || format('src/{0}', inputs.service) }}
 
     steps:
       # Checkout
