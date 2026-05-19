@@ -36,6 +36,9 @@ jobs:
       # Secret Scanning
       - name: Gitleaks Scan
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
       # Dockerfile Lint
       - name: Hadolint
@@ -118,7 +121,5 @@ jobs:
 
         with:
           subject-name: docker.io/${{ inputs.image_name }}
-
           subject-digest: ${{ steps.push.outputs.digest }}
-
           push-to-registry: true
