@@ -101,12 +101,13 @@ jobs:
           format: table
           exit-code: 0
           severity: CRITICAL,HIGH
+          scanners: vuln
 
       # SBOM Generation
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: ${{ inputs.image_name }}
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           format: spdx-json
           output-file: sbom.spdx.json
 
