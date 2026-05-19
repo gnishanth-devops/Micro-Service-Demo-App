@@ -14,6 +14,7 @@ echo "Using base ref: $BASE_REF"
 
 CHANGED_FILES=$(git diff --name-only ${BASE_REF}...HEAD)
 
+echo "Changed files:"
 echo "$CHANGED_FILES"
 
 if echo "$CHANGED_FILES" | grep -q '^src/frontend/'; then
@@ -56,8 +57,12 @@ if echo "$CHANGED_FILES" | grep -q '^src/adservice/'; then
   SERVICES+=("adservice")
 fi
 
-JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -cs .)
+if [ ${#SERVICES[@]} -eq 0 ]; then
+  JSON="[]"
+else
+  JSON=$(printf '%s\n' "${SERVICES[@]}" | jq -R . | jq -cs .)
+fi
 
 echo "Detected services: $JSON"
 
-echo "matrix=$JSON" >> $GITHUB_OUTPUT
+echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
