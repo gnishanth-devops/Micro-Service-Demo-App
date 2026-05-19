@@ -7,7 +7,7 @@ SERVICES=()
 if [[ \"$GITHUB_EVENT_NAME\" == \"pull_request\" ]]; then
     BASE_REF=\"origin/${GITHUB_BASE_REF}\"
 else
-    BASE_REF=\"HEAD~1\"
+    BASE_REF=HEAD~1
 fi
 
 CHANGED_FILES=$(git diff --name-only $BASE_REF...HEAD)
