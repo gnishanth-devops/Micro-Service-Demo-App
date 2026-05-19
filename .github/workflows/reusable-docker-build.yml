@@ -31,7 +31,7 @@ jobs:
     steps:
       # Checkout
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -97,7 +97,7 @@ jobs:
       - name: Trivy Image Scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ inputs.image_name }}
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           format: table
           exit-code: 1
           severity: CRITICAL,HIGH
