@@ -70,7 +70,7 @@ jobs:
       - name: Node Dependencies
         if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
-        run: npm ci
+        run: npm install
 
       - name: Python Dependencies
         if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
