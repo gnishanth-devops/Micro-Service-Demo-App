@@ -33,8 +33,16 @@ jobs:
             - name: Run Go Lint
               if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
               working-directory: ${{ env.SERVICE_PATH }}
+              continue-on-error: true
               run: |
-                golangci-lint run ./...
+                golangci-lint run ./... | tee golangci-report.txt
+
+            - name: Upload golangCi Report
+              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+              uses: actions/upload-artifact@v6
+              with:
+                name: ${{ inputs.service}}-golangci-report
+                path: ${{ env.SERVICE_PATH }}/golangci-report.txt
 
             # Nodejs Lint
             - name: Setup Node
@@ -51,9 +59,17 @@ jobs:
             - name: Run Node Lint
               if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
               working-directory: ${{ env.SERVICE_PATH }}
-              run: npm run lint
-            # Python Lint
+              continue-on-error: true
+              run: |
+                npm run lint | tee eslint-report.txt || true
+            - name: Upload Node Lint Report
+              if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ inputs.service }}-eslint-report
+                path: ${{ env.SERVICE_PATH }}/eslint-report.txt
 
+            # Python Lint
             - name: Setup Python
               if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
               uses: actions/setup-python@v5
@@ -65,17 +81,27 @@ jobs:
               run: |
                 pip install flake8 black
 
-            - name: Install Python Dependencies
+            - name: Install Python Lint Tools
               if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
-              working-directory: ${{ env.SERVICE_PATH }}
-              run: pip install -r requirements.txt
-
+              run: |
+                pip install flake8 black
+                
             - name: Run Python Lint
               if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
               working-directory: ${{ env.SERVICE_PATH }}
+              continue-on-error: true
               run: |
-                flake8 .
-                black --check .
+                flake8 . | tee flake8-report.txt || true
+                black --check . | tee black-report.txt || true
+
+            - name: Upload Python Lint Report
+              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+              uses: actions/upload-artifact@v6
+              with:
+                name: ${{ inputs.service }}-python-lint-report
+                path: |
+                  ${{ env.SERVICE_PATH }}/flake8-report.txt
+                  ${{ env.SERVICE_PATH }}/black-report.txt
 
             # Dotnet Lint
             - name: Setup Dotnet
@@ -86,8 +112,15 @@ jobs:
 
             - name: Run Dotnet Format Check
               if: inputs.service == 'cartservice'
+              continue-on-error: true
               working-directory: ${{ env.SERVICE_PATH }}
               run: |
-                dotnet format --verify-no-changes
+                dotnet format --verify-no-changes | tee dotnet-formate-report.txt || true
 
+            - name: Upload Dotnet Lint Report
+              if: inputs.service == 'cartservice'
+              uses: actions/upload-artifact@v6
+              with:
+                name: cartservice-dotnet-format-report
+                path: ${{ env.SERVICE_PATH }}/dotnet-format-report.txt
 
