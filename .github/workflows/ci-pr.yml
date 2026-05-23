@@ -16,10 +16,8 @@ permissions:
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
-
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -30,7 +28,7 @@ jobs:
         id: set-matrix
         run: ./scripts/detect_changed_services.sh
 
-  services-test-cases:
+  service-test-cases:
     needs: detect-changes
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
@@ -41,8 +39,8 @@ jobs:
     with:
       service: ${{ matrix.service }}
 
-  services-build:
-    needs: [detect-changes,services-test-cases]
+  service-build-and-push-image:
+    needs: [detect-changes,service-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false

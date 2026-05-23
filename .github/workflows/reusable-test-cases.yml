@@ -8,12 +8,10 @@ on:
         type: string
 
 jobs:
-  build:
+  Run_Test_Cases:
     runs-on: ubuntu-latest
-
     env:
       SERVICE_PATH: src/${{ inputs.service }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
