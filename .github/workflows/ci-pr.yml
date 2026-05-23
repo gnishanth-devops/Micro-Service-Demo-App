@@ -6,12 +6,12 @@ on:
       - main
       - develop
 
+concurrency:
+  group: pr-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  packages: write
-  attestations: write
-  id-token: write
-  security-events: write
 
 jobs:
   detect-changes:
@@ -28,8 +28,19 @@ jobs:
         id: set-matrix
         run: ./scripts/detect_changed_services.sh
 
-  service-test-cases:
+  service-lint:
     needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    uses: ./.github/workflows/reusable-lint.yml
+    with:
+      service: ${{ matrix.service }}
+
+  service-test-cases:
+    needs: [service-lint,detect-changes]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false
@@ -42,6 +53,12 @@ jobs:
   service-build-and-push-image:
     needs: [detect-changes,service-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      security-events: write
     strategy:
       fail-fast: false
       matrix:
