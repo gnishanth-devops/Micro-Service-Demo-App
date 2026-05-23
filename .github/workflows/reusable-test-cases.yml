@@ -1,4 +1,4 @@
-name: Reusable Service Build
+name: Reusable Test Cases Go, Dot net
 
 on:
   workflow_call:
@@ -17,7 +17,6 @@ jobs:
 
     env:
       SERVICE_PATH: src/${{ inputs.service }}
-      IMAGE_NAME: ${{ inputs.service }}:${{ inputs.image_tag }}
 
     steps:
       - name: Checkout
@@ -87,3 +86,42 @@ jobs:
         if: inputs.service == 'cartservice'
         working-directory: ${{ env.SERVICE_PATH }}/src
         run: dotnet restore
+      
+      ########################################################
+      # Go Test Execution
+      ########################################################
+
+      - name: Run Go Test Cases
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: |
+          go test -v -coverprofile=coverage.out ./... | tee test-output.txt
+
+      - name: Go Coverage Summary
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: |
+          go tool cover -func=coverage.out | tee coverage-summary.txt
+
+      - name: Generate Go HTML Coverage Report
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        working-directory: ${{ env.SERVICE_PATH }}
+        run: |
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload Go Coverage Report
+        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-coverage-report
+          path: ${{ env.SERVICE_PATH }}/coverage.html
+      
+      ########################################################
+      # Dotnet Test Cases Execution
+      ########################################################
+
+      - name: Run Dotnet Test Cases
+        if: inputs.service == 'cartservice'
+        working-directory: ${{ env.SERVICE_PATH }}/tests
+        run: |
+          dotnet test --collect:"XPlat Code Coverage" | tee dotnet-test-output.txt 

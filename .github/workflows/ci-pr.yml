@@ -30,8 +30,19 @@ jobs:
         id: set-matrix
         run: ./scripts/detect_changed_services.sh
 
-  service-build:
+  services-test-cases:
     needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    uses: ./.github/workflows/reusable-test-cases.yml
+    with:
+      service: ${{ matrix.service }}
+
+  services-build:
+    needs: [detect-changes,services-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false
