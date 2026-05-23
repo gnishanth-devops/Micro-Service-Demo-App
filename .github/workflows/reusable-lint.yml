@@ -26,11 +26,10 @@ jobs:
 
             - name: Run GolangCI-Lint
               if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
-              uses: golangci/golangci-lint-action@v8
               continue-on-error: true
-              with:
-                version: v2.12.2
-                working-directory: ${{ env.SERVICE_PATH }}
+              working-directory: ${{ env.SERVICE_PATH }}
+              run: |
+                golangci-lint run ./... | tee golangci-report.txt || true
 
             - name: Upload golangCi Report
               if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
@@ -117,5 +116,5 @@ jobs:
               uses: actions/upload-artifact@v6
               with:
                 name: cartservice-dotnet-format-report
-                path: ${{ env.SERVICE_PATH }}/dotnet-format-report.txt
+                path: ${{ env.SERVICE_PATH }}/dotnet-formate-report.txt
 
