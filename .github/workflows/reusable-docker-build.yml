@@ -128,10 +128,20 @@ jobs:
             docker push "$tag"
           done <<< "${{ steps.meta.outputs.tags }}"
 
+      # Get Image Digest
+      - name: Get Image Digest
+        id: digest
+        run: |
+          DIGEST=$(docker inspect \
+            --format='{{index .RepoDigests 0}}' \
+            $(echo "${{ steps.meta.outputs.tags }}" | head -n 1) \
+            | cut -d'@' -f2)
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
       # Artifact Attestation
       - name: Generate Artifact Attestation
         uses: actions/attest-build-provenance@v1
         with:
           subject-name: docker.io/${{ inputs.image_name }}
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ steps.digest.outputs.digest }}
           push-to-registry: true
