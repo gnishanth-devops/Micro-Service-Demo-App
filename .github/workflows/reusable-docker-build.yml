@@ -128,7 +128,7 @@ jobs:
             docker push "$tag"
           done <<< "${{ steps.meta.outputs.tags }}"
 
-      # Get Image Digest
+      # Get Image Digest for attest
       - name: Get Image Digest
         id: digest
         run: |
