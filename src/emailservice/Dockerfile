@@ -44,7 +44,7 @@ RUN apk update \
 
 WORKDIR /email_server
 
-# Grab packages from builder
+# Grab packages from builder info
 COPY --from=builder /usr/local/lib/python3.14/ /usr/local/lib/python3.14/
 
 # Add the application

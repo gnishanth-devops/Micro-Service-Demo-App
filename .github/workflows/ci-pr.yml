@@ -1,9 +1,6 @@
 name: PR Validation
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -11,6 +8,9 @@ on:
 
 permissions:
   contents: read
+  packages: write
+  attestations: write
+  id-token: write
   security-events: write
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -32,15 +32,13 @@ jobs:
 
   service-build:
     needs: detect-changes
-
     if: needs.detect-changes.outputs.matrix != '[]'
-
     strategy:
       fail-fast: false
       matrix:
         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-
-    uses: ./.github/workflows/reusable-service-build.yml
+    uses: ./.github/workflows/reusable-docker-build.yml
+    secrets: inherit
     with:
       service: ${{ matrix.service }}
-      image_tag: pr-${{ github.event.number }}-${{ github.sha }}
+      image_name: gnishanth777/online_boutique
