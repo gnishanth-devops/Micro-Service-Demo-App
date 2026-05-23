@@ -41,6 +41,20 @@ jobs:
     with:
       service: ${{ matrix.service }}
 
+  services-sonar-scan:
+    needs:
+      - detect-changes
+      - services-test-cases
+    if: needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    uses: ./.github/workflows/reusable-sonar-scan.yml
+    secrets: inherit
+    with:
+      service: ${{ matrix.service }}
+      
   services-build:
     needs: [detect-changes,services-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'

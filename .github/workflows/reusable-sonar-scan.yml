@@ -1,0 +1,43 @@
+name: Reusable Sonar Scan
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+
+    secrets:
+      SONAR_TOKEN:
+        required: true
+
+      SONAR_HOST_URL:
+        required: true
+
+jobs:
+  sonar-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ inputs.service }}
+            -Dsonar.projectName=${{ inputs.service }}
+            -Dsonar.sources=src/${{ inputs.service }}
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**
+
+      - name: Quality Gate Check
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
