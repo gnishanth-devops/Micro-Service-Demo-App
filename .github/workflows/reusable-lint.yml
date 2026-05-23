@@ -25,17 +25,12 @@ jobs:
                 go-version: '1.25'
 
             - name: Run GolangCI-Lint
+              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
               uses: golangci/golangci-lint-action@v8
+              continue-on-error: true
               with:
                 version: v2.12.2
                 working-directory: ${{ env.SERVICE_PATH }}
-
-            - name: Run Go Lint
-              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
-              working-directory: ${{ env.SERVICE_PATH }}
-              continue-on-error: true
-              run: |
-                golangci-lint run ./... | tee golangci-report.txt
 
             - name: Upload golangCi Report
               if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
@@ -85,7 +80,7 @@ jobs:
               if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
               run: |
                 pip install flake8 black
-                
+
             - name: Run Python Lint
               if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
               working-directory: ${{ env.SERVICE_PATH }}
