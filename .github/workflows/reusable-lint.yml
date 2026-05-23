@@ -24,25 +24,13 @@ jobs:
               with:
                 go-version: '1.25'
 
-            - name: Install GolangCI-Lint
-              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
-              run: |
-                curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-                | sh -s -- -b /usr/local/bin v2.12.2
-
             - name: Run GolangCI-Lint
               if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
               continue-on-error: true
-              working-directory: ${{ env.SERVICE_PATH }}
-              run: |
-                golangci-lint run ./... 2>&1 | tee golangci-report.txt || true
-
-            - name: Upload golangCi Report
-              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
-              uses: actions/upload-artifact@v6
+              uses: golangci/golangci-lint-action@v8
               with:
-                name: ${{ inputs.service}}-golangci-report
-                path: ${{ env.SERVICE_PATH }}/golangci-report.txt
+                version: v2.12.2
+                working-directory: ${{ env.SERVICE_PATH }}
 
             # Nodejs Lint
             - name: Setup Node
@@ -61,14 +49,7 @@ jobs:
               working-directory: ${{ env.SERVICE_PATH }}
               continue-on-error: true
               run: |
-                npm run lint 2>&1 | tee eslint-report.txt || true
-
-            - name: Upload Node Lint Report
-              if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
-              uses: actions/upload-artifact@v4
-              with:
-                name: ${{ inputs.service }}-eslint-report
-                path: ${{ env.SERVICE_PATH }}/eslint-report.txt
+                npm run lint
 
             # Python Lint
             - name: Setup Python
@@ -92,17 +73,8 @@ jobs:
               working-directory: ${{ env.SERVICE_PATH }}
               continue-on-error: true
               run: |
-                flake8 . 2>&1 | tee flake8-report.txt || true
+                flake8 . | tee flake8-report.txt || true
                 black --check . | tee black-report.txt || true
-
-            - name: Upload Python Lint Report
-              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
-              uses: actions/upload-artifact@v6
-              with:
-                name: ${{ inputs.service }}-python-lint-report
-                path: |
-                  ${{ env.SERVICE_PATH }}/flake8-report.txt
-                  ${{ env.SERVICE_PATH }}/black-report.txt
 
             # Dotnet Lint
             - name: Setup Dotnet
@@ -116,12 +88,5 @@ jobs:
               continue-on-error: true
               working-directory: ${{ env.SERVICE_PATH }}
               run: |
-                dotnet format --verify-no-changes 2>&1 | tee dotnet-formate-report.txt || true
-
-            - name: Upload Dotnet Lint Report
-              if: inputs.service == 'cartservice'
-              uses: actions/upload-artifact@v6
-              with:
-                name: cartservice-dotnet-format-report
-                path: ${{ env.SERVICE_PATH }}/dotnet-formate-report.txt
+                dotnet format --verify-no-changes | tee dotnet-formate-report.txt || true
 
