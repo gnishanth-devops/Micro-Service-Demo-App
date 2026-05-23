@@ -12,6 +12,10 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
+  attestations: write
+  id-token: write
+  security-events: write
 
 jobs:
   detect-changes:
@@ -67,12 +71,6 @@ jobs:
   services-build:
     needs: [detect-changes,services-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-      security-events: write
     strategy:
       fail-fast: false
       matrix:
