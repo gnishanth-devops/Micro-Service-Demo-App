@@ -19,7 +19,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.SecretManager.V1;
- 
+
 namespace cartservice.cartstore
 {
     public class AlloyDBCartStore : ICartStore
@@ -38,7 +38,7 @@ namespace cartservice.cartstore
             AccessSecretVersionResponse result = client.AccessSecretVersion(secretVersionName);
             // Convert the payload to a string. Payloads are bytes by default.
             string alloyDBPassword = result.Payload.Data.ToStringUtf8().TrimEnd('\r', '\n');
-        
+
             // TODO: Create a separate user for connecting within the application
             // rather than using our superuser
             string alloyDBUser = "postgres";
@@ -46,59 +46,59 @@ namespace cartservice.cartstore
             // TODO: Consider splitting workloads into read vs. write and take
             // advantage of the AlloyDB read pools
             string primaryIPAddress = configuration["ALLOYDB_PRIMARY_IP"];
-            connectionString = "Host="          +
+            connectionString = "Host=" +
                                primaryIPAddress +
-                               ";Username="     +
-                               alloyDBUser      +
-                               ";Password="     +
-                               alloyDBPassword  +
-                               ";Database="     +
+                               ";Username=" +
+                               alloyDBUser +
+                               ";Password=" +
+                               alloyDBPassword +
+                               ";Database=" +
                                databaseName;
 
             tableName = configuration["ALLOYDB_TABLE_NAME"];
         }
 
 
-    public async Task AddItemAsync(string userId, string productId, int quantity)
-    {
-        Console.WriteLine($"AddItemAsync for {userId} called");
-        try
+        public async Task AddItemAsync(string userId, string productId, int quantity)
         {
-            await using var dataSource = NpgsqlDataSource.Create(connectionString);
-
-            var fetchCmd = $"SELECT quantity FROM {tableName} WHERE userID='{userId}' AND productID='{productId}'";
-            var currentQuantity = 0;
-            var cmdRead = dataSource.CreateCommand(fetchCmd);
-            await using (var reader = await cmdRead.ExecuteReaderAsync())
+            Console.WriteLine($"AddItemAsync for {userId} called");
+            try
             {
-                while (await reader.ReadAsync())
-                    currentQuantity += reader.GetInt32(0);
-            }
+                await using var dataSource = NpgsqlDataSource.Create(connectionString);
 
-            var totalQuantity = quantity + currentQuantity;
+                var fetchCmd = $"SELECT quantity FROM {tableName} WHERE userID='{userId}' AND productID='{productId}'";
+                var currentQuantity = 0;
+                var cmdRead = dataSource.CreateCommand(fetchCmd);
+                await using (var reader = await cmdRead.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                        currentQuantity += reader.GetInt32(0);
+                }
 
-            // Use INSERT ... ON CONFLICT to prevent duplicate key error
-            var insertCmd = $@"
+                var totalQuantity = quantity + currentQuantity;
+
+                // Use INSERT ... ON CONFLICT to prevent duplicate key error
+                var insertCmd = $@"
                 INSERT INTO {tableName} (userId, productId, quantity)
                 VALUES ('{userId}', '{productId}', {totalQuantity})
                 ON CONFLICT (userId, productId)
                 DO UPDATE SET quantity = {totalQuantity};
             ";
 
-            await using (var cmdInsert = dataSource.CreateCommand(insertCmd))
-            {
-                await Task.Run(() =>
+                await using (var cmdInsert = dataSource.CreateCommand(insertCmd))
                 {
-                    return cmdInsert.ExecuteNonQueryAsync();
-                });
+                    await Task.Run(() =>
+                    {
+                        return cmdInsert.ExecuteNonQueryAsync();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(
+                    new Status(StatusCode.FailedPrecondition, $"Unable to access cart storage due to an internal error. {ex}"));
             }
         }
-        catch (Exception ex)
-        {   
-            throw new RpcException(
-                new Status(StatusCode.FailedPrecondition, $"Unable to access cart storage due to an internal error. {ex}"));
-        }
-    }
 
 
         public async Task<Hipstershop.Cart> GetCartAsync(string userId)
