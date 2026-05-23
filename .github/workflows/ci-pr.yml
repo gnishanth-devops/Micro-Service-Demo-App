@@ -54,8 +54,8 @@ jobs:
     with:
       service: ${{ matrix.service }}
 
-  services-sonar-scan:
-    needs: [detect-changes, service-test-cases]
+  service-sonar-scan:
+    needs: [detect-changes,service-test-cases]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false
@@ -67,7 +67,7 @@ jobs:
       service: ${{ matrix.service }}
 
   services-build:
-    needs: [detect-changes,service-test-cases]
+    needs: [detect-changes,service-sonar-scan]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false
