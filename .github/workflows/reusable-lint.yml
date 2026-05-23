@@ -9,7 +9,7 @@ on:
 
 jobs:
     lint:
-        runs-on: ubunut-lates
+        runs-on: ubunut-latest
         env:
           SERVICE_PATH: ${{ inputs.service == 'cartservice' && 'src/cartservice/src' || format('src/{0}', inputs.service) }}
         steps:
