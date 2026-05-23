@@ -17,14 +17,12 @@ jobs:
     concurrency:
       group: docker-${{ inputs.service }}-${{ github.ref }}
       cancel-in-progress: true
-
     permissions:
       packages: write
       contents: read
       attestations: write
       id-token: write
       security-events: write
-
     env:
       SERVICE_PATH: ${{ inputs.service == 'cartservice' && 'src/cartservice/src' || format('src/{0}', inputs.service) }}
 
@@ -42,11 +40,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
-      # # Dockerfile Lint
-      # - name: Hadolint
-      #   uses: hadolint/hadolint-action@v3.1.0
-      #   with:
-      #     dockerfile: ${{ env.SERVICE_PATH }}/Dockerfile
+      # Dockerfile Lint
+      - name: Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        continue-on-error: true
+        with:
+          dockerfile: ${{ env.SERVICE_PATH }}/Dockerfile
 
       # Docker Login
       - name: Login to Docker Hub
