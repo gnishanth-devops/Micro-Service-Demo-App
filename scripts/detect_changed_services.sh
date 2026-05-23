@@ -21,40 +21,40 @@ if echo "$CHANGED_FILES" | grep -q '^src/frontend/'; then
   SERVICES+=("frontend")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/checkoutservice/'; then
+if echo "$CHANGED_FILES" | grep -q '^src/checkout_service/'; then
   SERVICES+=("checkoutservice")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/shippingservice/'; then
-  SERVICES+=("shippingservice")
+if echo "$CHANGED_FILES" | grep -q '^src/shipping_service/'; then
+  SERVICES+=("shipping_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/productcatalogservice/'; then
-  SERVICES+=("productcatalogservice")
+if echo "$CHANGED_FILES" | grep -q '^src/product_catalog_service/'; then
+  SERVICES+=("product_catalog_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/cartservice/'; then
-  SERVICES+=("cartservice")
+if echo "$CHANGED_FILES" | grep -q '^src/cart_service/'; then
+  SERVICES+=("cart_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/paymentservice/'; then
-  SERVICES+=("paymentservice")
+if echo "$CHANGED_FILES" | grep -q '^src/payment_service/'; then
+  SERVICES+=("payment_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/currencyservice/'; then
-  SERVICES+=("currencyservice")
+if echo "$CHANGED_FILES" | grep -q '^src/currency_service/'; then
+  SERVICES+=("currency_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/recommendationservice/'; then
-  SERVICES+=("recommendationservice")
+if echo "$CHANGED_FILES" | grep -q '^src/recommendation_service/'; then
+  SERVICES+=("recommendation_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/emailservice/'; then
-  SERVICES+=("emailservice")
+if echo "$CHANGED_FILES" | grep -q '^src/email_service/'; then
+  SERVICES+=("email_service")
 fi
 
-if echo "$CHANGED_FILES" | grep -q '^src/adservice/'; then
-  SERVICES+=("adservice")
+if echo "$CHANGED_FILES" | grep -q '^src/ad_service/'; then
+  SERVICES+=("ad_service")
 fi
 
 if [ ${#SERVICES[@]} -eq 0 ]; then
