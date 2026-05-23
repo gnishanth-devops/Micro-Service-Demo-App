@@ -7,17 +7,11 @@ on:
         required: true
         type: string
 
-      image_tag:
-        required: true
-        type: string
-
 jobs:
-  build:
+  Run_Test_Cases:
     runs-on: ubuntu-latest
-
     env:
       SERVICE_PATH: src/${{ inputs.service }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,7 +82,7 @@ jobs:
         run: dotnet restore
       
       ########################################################
-      # Go Test Execution
+      # Go Test Executions
       ########################################################
 
       - name: Run Go Test Cases
@@ -111,7 +105,7 @@ jobs:
 
       - name: Upload Go Coverage Report
         if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.service }}-coverage-report
           path: ${{ env.SERVICE_PATH }}/coverage.html
@@ -125,3 +119,32 @@ jobs:
         working-directory: ${{ env.SERVICE_PATH }}/tests
         run: |
           dotnet test --collect:"XPlat Code Coverage" | tee dotnet-test-output.txt 
+
+      - name: Upload Dotnet Coverage
+        if: inputs.service == 'cartservice'
+        uses: actions/upload-artifact@v7
+        with:
+          name: cartservice-coverage
+          path: |
+            src/cartservice/tests/**/coverage.cobertura.xml 
+      
+      - name: Install ReportGenerator
+        if: inputs.service == 'cartservice'
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+      
+      - name: Generate HTML Coverage Report
+        if: inputs.service == 'cartservice'
+        working-directory: ${{ env.SERVICE_PATH }}/tests
+        run: |
+          reportgenerator \
+            -reports:"**/coverage.cobertura.xml" \
+            -targetdir:"coverage-report" \
+            -reporttypes:Html
+      
+      - name: Upload HTML Coverage Report
+        if: inputs.service == 'cartservice'
+        uses: actions/upload-artifact@v7
+        with:
+          name: cartservice-html-report
+          path: src/cartservice/tests/coverage-report      

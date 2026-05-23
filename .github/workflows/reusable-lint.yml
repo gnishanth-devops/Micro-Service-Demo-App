@@ -1,0 +1,92 @@
+name: Reusable Lint Workflow
+
+on:
+    workflow_call:
+        inputs:
+            service:
+                required: true
+                type: string
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        env:
+          SERVICE_PATH: ${{ inputs.service == 'cartservice' && 'src/cartservice/src' || format('src/{0}', inputs.service) }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                fetch-depth: 0
+
+            - name: Setup Go
+              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+              uses: actions/setup-go@v5
+              with:
+                go-version: '1.25'
+
+            - name: Run GolangCI-Lint
+              if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+              continue-on-error: true
+              uses: golangci/golangci-lint-action@v8
+              with:
+                version: v2.12.2
+                working-directory: ${{ env.SERVICE_PATH }}
+
+            # Nodejs Lint
+            - name: Setup Node
+              if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+
+            - name: Install Node Dependencies
+              if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+              working-directory: ${{ env.SERVICE_PATH }}
+              run: npm install
+
+            - name: Run Node Lint
+              if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+              working-directory: ${{ env.SERVICE_PATH }}
+              continue-on-error: true
+              run: |
+                npm run lint
+
+            # Python Lint
+            - name: Setup Python
+              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.11'
+
+            - name: Install Python Lint Tools
+              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+              run: |
+                pip install flake8 black
+
+            - name: Install Python Lint Tools
+              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+              run: |
+                pip install flake8 black
+
+            - name: Run Python Lint
+              if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+              working-directory: ${{ env.SERVICE_PATH }}
+              continue-on-error: true
+              run: |
+                flake8 . | tee flake8-report.txt || true
+                black --check . | tee black-report.txt || true
+
+            # Dotnet Lint
+            - name: Setup Dotnet
+              if: inputs.service == 'cartservice'
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '8.0.x'
+
+            - name: Run Dotnet Format Check
+              if: inputs.service == 'cartservice'
+              continue-on-error: true
+              working-directory: ${{ env.SERVICE_PATH }}
+              run: |
+                dotnet format --verify-no-changes | tee dotnet-formate-report.txt || true
+

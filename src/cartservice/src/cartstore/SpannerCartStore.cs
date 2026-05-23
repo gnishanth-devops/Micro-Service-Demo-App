@@ -34,7 +34,8 @@ namespace cartservice.cartstore
             string spannerDatabaseId = configuration["SPANNER_DATABASE"];
             string spannerConnectionString = configuration["SPANNER_CONNECTION_STRING"];
             SpannerConnectionStringBuilder builder = new();
-            if (!string.IsNullOrEmpty(spannerConnectionString)) {
+            if (!string.IsNullOrEmpty(spannerConnectionString))
+            {
                 builder.DataSource = spannerConnectionString;
                 databaseString = builder.ToString();
                 Console.WriteLine($"Spanner connection string: ${databaseString}");
@@ -72,7 +73,8 @@ namespace cartservice.cartstore
                     quantityLookup.Transaction = transaction;
                     using (var reader = await quantityLookup.ExecuteReaderAsync())
                     {
-                        while (await reader.ReadAsync()) {
+                        while (await reader.ReadAsync())
+                        {
                             currentQuantity += reader.GetFieldValue<int>("quantity");
                         }
                     }
