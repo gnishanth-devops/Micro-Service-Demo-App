@@ -69,7 +69,7 @@ jobs:
           context: ${{ env.SERVICE_PATH }}
           file: ${{ env.SERVICE_PATH }}/Dockerfile
           push: false
-          outputs: type=oci,dest=/tmp/${{ inputs.service }}.tar
+          outputs: type=docker,dest=/tmp/${{ inputs.service }}.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
