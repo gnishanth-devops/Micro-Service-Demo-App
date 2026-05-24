@@ -1,4 +1,4 @@
-name: Reusable Sonar Scan
+name: Reusable Sonar Scan SAST
 
 on:
   workflow_call:
