@@ -14,7 +14,7 @@ jobs:
       SERVICE_PATH: src/${{ inputs.service }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       ########################################################
       # Runtime Setup
@@ -80,7 +80,7 @@ jobs:
         if: inputs.service == 'cartservice'
         working-directory: ${{ env.SERVICE_PATH }}/src
         run: dotnet restore
-      
+
       ########################################################
       # Go Test Executions
       ########################################################
@@ -109,7 +109,7 @@ jobs:
         with:
           name: ${{ inputs.service }}-coverage-report
           path: ${{ env.SERVICE_PATH }}/coverage.html
-      
+
       ########################################################
       # Dotnet Test Cases Execution
       ########################################################
@@ -118,7 +118,7 @@ jobs:
         if: inputs.service == 'cartservice'
         working-directory: ${{ env.SERVICE_PATH }}/tests
         run: |
-          dotnet test --collect:"XPlat Code Coverage" | tee dotnet-test-output.txt 
+          dotnet test --collect:"XPlat Code Coverage" | tee dotnet-test-output.txt
 
       - name: Upload Dotnet Coverage
         if: inputs.service == 'cartservice'
@@ -126,13 +126,13 @@ jobs:
         with:
           name: cartservice-coverage
           path: |
-            src/cartservice/tests/**/coverage.cobertura.xml 
-      
+            src/cartservice/tests/**/coverage.cobertura.xml
+
       - name: Install ReportGenerator
         if: inputs.service == 'cartservice'
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
-      
+
       - name: Generate HTML Coverage Report
         if: inputs.service == 'cartservice'
         working-directory: ${{ env.SERVICE_PATH }}/tests
@@ -141,10 +141,10 @@ jobs:
             -reports:"**/coverage.cobertura.xml" \
             -targetdir:"coverage-report" \
             -reporttypes:Html
-      
+
       - name: Upload HTML Coverage Report
         if: inputs.service == 'cartservice'
         uses: actions/upload-artifact@v7
         with:
           name: cartservice-html-report
-          path: src/cartservice/tests/coverage-report      
+          path: src/cartservice/tests/coverage-report
