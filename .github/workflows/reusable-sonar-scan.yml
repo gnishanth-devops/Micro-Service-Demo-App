@@ -41,3 +41,15 @@ jobs:
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Fetch Sonar Issues
+        run: |
+          curl -u ${{ secrets.SONAR_TOKEN }}: \
+          "${{ secrets.SONAR_HOST_URL }}/api/issues/search?componentKeys=${{ inputs.service }}" \
+          -o sonar-report.json
+
+      - name: Upload Sonar Report
+        uses: actions/upload-artifact@v6
+        with:
+          name: sonar-report-${{ inputs.service }}
+          path: sonar-report.json
