@@ -21,7 +21,6 @@ FROM base AS builder
 
 RUN apt-get -qq update \
     && apt-get install -y --no-install-recommends g++ \
-       netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # get packages
@@ -35,6 +34,10 @@ ENV PYTHONUNBUFFERED=1
 # get packages
 WORKDIR /shoppingassistantservice
 
+RUN apt-get -qq update \
+    && apt-get install -y --no-install-recommends \
+       netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 # Grab packages from builder
 COPY --from=builder /usr/local/lib/python3.14/ /usr/local/lib/python3.14/
 

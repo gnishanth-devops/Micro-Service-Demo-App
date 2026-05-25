@@ -2,6 +2,7 @@
 #    uv pip compile requirements.in -o requirements.txt
 aiofiles==24.1.0
     # via google-cloud-alloydb-connector
+aiohttp==3.12.15
 annotated-types==0.7.0
     # via pydantic
 anyio==4.10.0
