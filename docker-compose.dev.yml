@@ -1,0 +1,222 @@
+# Top level section containing all containers
+services:
+  # compose service name become container dns name, internal hostnem
+  frontend:
+    build:
+      # detect the dockerfile automatically inside the directory
+      context: ./src/frontend
+    # name the container useful for debuging
+    container_name: frontend
+    restart: unless-stopped
+    # host-port:container-port
+    ports:
+      - 8080:8080
+    environment:
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+      CART_SERVICE_ADDR: cartservice:7070
+      RECOMMENDATION_SERVICE_ADDR: recommendationservice:8081
+      CURRENCY_SERVICE_ADDR: currencyservice:7000
+      CHECKOUT_SERVICE_ADDR: checkoutservice:5050
+      AD_SERVICE_ADDR: adservice:9555
+      SHIPPING_SERVICE_ADDR: shippingservice:50052
+      SHOPPING_ASSISTANT_SERVICE_ADDR: shoppingassistantservice:8082
+    depends_on:
+      productcatalogservice:
+        condition: service_healthy
+      currencyservice:
+        condition: service_healthy
+      cartservice:
+        condition: service_healthy
+      recommendationservice:
+        condition: service_healthy
+      shippingservice:
+        condition: service_healthy
+      checkoutservice:
+        condition: service_healthy
+      adservice:
+        condition: service_healthy
+    networks:
+      - boutique-network
+
+
+  productcatalogservice:
+    build:
+      context: ./src/product_catalog_service
+    container_name: product_catalog_service
+    restart: unless-stopped
+    environment:
+      port: 3550
+      DISABLE_PROFILER: "1"
+    networks:
+      - boutique-network
+
+  cartservice:
+    build:
+      context: ./src/cart_service/src
+    container_name: cart_service
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis-cache:6379
+    depends_on:
+      redis-cache:
+        condition: service_healthy
+    networks:
+      - boutique-network
+
+  redis-cache:
+    image: redis:8.2.6-alpine
+    container_name: redis_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    networks:
+      - boutique-network
+
+  recommendationservice:
+    build:
+      context: ./src/recommendation_service
+    container_name: recommendation_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      PORT: 8081
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+      DISABLE_PROFILER: "1"
+    depends_on:
+      productcatalogservice:
+        condition: service_healthy
+    networks:
+      - boutique-network
+
+  currencyservice:
+    build:
+      context: ./src/currency_service
+    container_name: currency_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+        PORT: 7000
+        DISABLE_PROFILER: "1"
+    networks:
+      - boutique-network
+
+  checkoutservice:
+    build:
+      context: ./src/checkout_service
+    container_name: checkout_service
+    restart: unless-stopped
+    environment:
+      PORT: 5050
+      PAYMENT_SERVICE_ADDR: paymentservice:50051
+      SHIPPING_SERVICE_ADDR: shippingservice:50052
+      EMAIL_SERVICE_ADDR: emailservice:8082
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+      CART_SERVICE_ADDR: cartservice:7070
+      CURRENCY_SERVICE_ADDR: currencyservice:7000
+    depends_on:
+      - productcatalogservice
+      - shippingservice
+      - paymentservice
+      - emailservice
+      - currencyservice
+      - cartservice
+    networks:
+      - boutique-network
+
+  paymentservice:
+    build:
+      context:  ./src/payment_service
+    container_name: payment_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "50051"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+        PORT: 50051
+        DISABLE_PROFILER: "1"
+    networks:
+        - boutique-network
+
+  shippingservice:
+    build:
+      context: ./src/shipping_service
+    container_name: shipping_service
+    restart: unless-stopped
+    environment:
+      PORT: 50052
+      DISABLE_PROFILER: "1"
+    networks:
+      - boutique-network
+
+  emailservice:
+    build:
+      context: ./src/email_service
+    container_name: email_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      PORT: 8081
+      DISABLE_PROFILER: "1"
+    networks:
+      - boutique-network
+
+  adservice:
+    build:
+      context: ./src/ad_service
+    container_name: ad_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9555"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      PORT: 9555
+      DISABLE_PROFILER: "1"
+    networks:
+      - boutique-network
+
+  shoppingassistantservice:
+    build:
+      context: ./src/shopping_assistant_service
+    container_name: shopping_assistant_service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8082"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      PORT: 8082
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+    depends_on:
+      - productcatalogservice
+    networks:
+      - boutique-network
+
+networks:
+    boutique-network:
+      driver: bridge

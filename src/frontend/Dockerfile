@@ -6,6 +6,8 @@ FROM --platform=$BUILDPLATFORM golang:1.26.2-alpine AS builder
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 
+RUN apk add --no-cache netcat-openbsd
+
 WORKDIR /src
 
 COPY go.mod go.sum ./

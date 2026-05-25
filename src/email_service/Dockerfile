@@ -39,7 +39,7 @@ ENV PYTHONUNBUFFERED=1
 ENV ENABLE_PROFILER=1
 
 RUN apk update \
-    && apk add --no-cache libstdc++ \
+    && apk add --no-cache libstdc++ netcat-openbsd\
     && rm -rf /var/cache/apk/*
 
 WORKDIR /email_server

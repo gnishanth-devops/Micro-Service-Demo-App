@@ -21,6 +21,7 @@ FROM base AS builder
 
 RUN apt-get -qq update \
     && apt-get install -y --no-install-recommends g++ \
+       netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # get packages
