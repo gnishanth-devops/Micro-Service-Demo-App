@@ -78,3 +78,8 @@ jobs:
     with:
       service: ${{ matrix.service }}
       image_name: gnishanth777/online_boutique
+
+  compose-validation:
+    uses: ./.github/workflows/docker-compose-integration.yml
+    with:
+      compose_file: compose/docker-compose-integration-dev.yml

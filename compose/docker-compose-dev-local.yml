@@ -21,23 +21,15 @@ services:
       SHIPPING_SERVICE_ADDR: shippingservice:50052
       SHOPPING_ASSISTANT_SERVICE_ADDR: shoppingassistantservice:8082
     depends_on:
-      productcatalogservice:
-        condition: service_healthy
-      currencyservice:
-        condition: service_healthy
-      cartservice:
-        condition: service_healthy
-      recommendationservice:
-        condition: service_healthy
-      shippingservice:
-        condition: service_healthy
-      checkoutservice:
-        condition: service_healthy
-      adservice:
-        condition: service_healthy
+      - productcatalogservice
+      - currencyservice
+      - cartservice
+      - recommendationservice
+      - shippingservice
+      - checkoutservice
+      - adservice
     networks:
       - boutique-network
-
 
   productcatalogservice:
     build:
@@ -91,8 +83,7 @@ services:
       PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
       DISABLE_PROFILER: "1"
     depends_on:
-      productcatalogservice:
-        condition: service_healthy
+      - productcatalogservice
     networks:
       - boutique-network
 
@@ -151,7 +142,7 @@ services:
         PORT: 50051
         DISABLE_PROFILER: "1"
     networks:
-        - boutique-network
+      - boutique-network
 
   shippingservice:
     build:
@@ -170,13 +161,13 @@ services:
     container_name: email_service
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8081"]
+      test: ["CMD", "nc", "-z", "localhost", "8082"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 20s
     environment:
-      PORT: 8081
+      PORT: 8082
       DISABLE_PROFILER: "1"
     networks:
       - boutique-network
@@ -195,25 +186,6 @@ services:
     environment:
       PORT: 9555
       DISABLE_PROFILER: "1"
-    networks:
-      - boutique-network
-
-  shoppingassistantservice:
-    build:
-      context: ./src/shopping_assistant_service
-    container_name: shopping_assistant_service
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8082"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
-    environment:
-      PORT: 8082
-      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
-    depends_on:
-      - productcatalogservice
     networks:
       - boutique-network
 
