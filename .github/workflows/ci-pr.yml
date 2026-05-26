@@ -66,7 +66,7 @@ jobs:
     with:
       service: ${{ matrix.service }}
 
-  services-build:
+  service-build:
     needs: [detect-changes,service-sonar-scan]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
