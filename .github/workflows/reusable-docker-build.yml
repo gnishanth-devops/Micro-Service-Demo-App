@@ -23,7 +23,7 @@ jobs:
       id-token: write
       security-events: write
     env:
-      SERVICE_PATH: ${{ inputs.service == 'cartservice' && 'src/cartservice/src' || format('src/{0}', inputs.service) }}
+      SERVICE_PATH: ${{ inputs.service == 'cart_service' && 'src/cart_service/src' || format('src/{0}', inputs.service) }}
 
     steps:
       # Checkout
