@@ -21,7 +21,7 @@ jobs:
 
       # Checkout Repository
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       # Docker Login
       - name: Login to Docker Hub
