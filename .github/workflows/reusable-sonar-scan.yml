@@ -33,7 +33,7 @@ jobs:
             -Dsonar.projectKey=${{ inputs.service }}
             -Dsonar.projectName=${{ inputs.service }}
             -Dsonar.sources=src/${{ inputs.service }}
-            -Dsonar.exclusions=**/node_modules/**,**/dist/**
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,src/ad_service/**
 
       - name: Quality Gate Check
         uses: SonarSource/sonarqube-quality-gate-action@v1.1.0

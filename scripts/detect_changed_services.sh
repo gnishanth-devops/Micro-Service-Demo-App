@@ -22,7 +22,7 @@ if echo "$CHANGED_FILES" | grep -q '^src/frontend/'; then
 fi
 
 if echo "$CHANGED_FILES" | grep -q '^src/checkout_service/'; then
-  SERVICES+=("checkoutservice")
+  SERVICES+=("checkout_service")
 fi
 
 if echo "$CHANGED_FILES" | grep -q '^src/shipping_service/'; then
