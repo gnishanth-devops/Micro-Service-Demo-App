@@ -21,32 +21,32 @@ jobs:
       ########################################################
 
       - name: Setup Go
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalog_service"]'), inputs.service)
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
 
       - name: Setup Node
-        if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+        if: contains(fromJson('["payment_service","currency_service"]'), inputs.service)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Setup Python
-        if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+        if: contains(fromJson('["recommendation_service","email_service"]'), inputs.service)
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Setup Java
-        if: inputs.service == 'adservice'
+        if: inputs.service == 'ad_service'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Setup Dotnet
-        if: inputs.service == 'cartservice'
+        if: inputs.service == 'cart_service'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
@@ -72,12 +72,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Java Dependencies
-        if: inputs.service == 'adservice'
+        if: inputs.service == 'ad_service'
         working-directory: ${{ env.SERVICE_PATH }}
         run: chmod +x gradlew && ./gradlew dependencies
 
       - name: Dotnet Restore
-        if: inputs.service == 'cartservice'
+        if: inputs.service == 'cart_service'
         working-directory: ${{ env.SERVICE_PATH }}/src
         run: dotnet restore
 
