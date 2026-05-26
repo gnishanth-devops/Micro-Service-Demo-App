@@ -81,5 +81,6 @@ jobs:
 
   compose-validation:
     uses: ./.github/workflows/docker-compose-integration.yml
+    secrets: inherit
     with:
       compose_file: compose/docker-compose-integration-dev.yml

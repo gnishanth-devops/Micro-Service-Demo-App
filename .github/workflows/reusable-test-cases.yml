@@ -56,17 +56,17 @@ jobs:
       ########################################################
 
       - name: Go Dependencies
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalogs_ervice"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: go mod download
 
       - name: Node Dependencies
-        if: contains(fromJson('["paymentservice","currencyservice"]'), inputs.service)
+        if: contains(fromJson('["payment_service","currency_service"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: npm install
 
       - name: Python Dependencies
-        if: contains(fromJson('["recommendationservice","emailservice"]'), inputs.service)
+        if: contains(fromJson('["recommendation_service","email_service"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: |
           pip install -r requirements.txt
@@ -86,25 +86,25 @@ jobs:
       ########################################################
 
       - name: Run Go Test Cases
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalog_service"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: |
           go test -v -coverprofile=coverage.out ./... | tee test-output.txt
 
       - name: Go Coverage Summary
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalog_service"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: |
           go tool cover -func=coverage.out | tee coverage-summary.txt
 
       - name: Generate Go HTML Coverage Report
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalog_service"]'), inputs.service)
         working-directory: ${{ env.SERVICE_PATH }}
         run: |
           go tool cover -html=coverage.out -o coverage.html
 
       - name: Upload Go Coverage Report
-        if: contains(fromJson('["frontend","checkoutservice","shippingservice","productcatalogservice"]'), inputs.service)
+        if: contains(fromJson('["frontend","checkout_service","shipping_service","product_catalog_service"]'), inputs.service)
         uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.service }}-coverage-report
