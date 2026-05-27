@@ -30,8 +30,8 @@ check_connection cart_service redis-cache 6379
 
 check_connection checkout_service paymentservice 50051
 
-check_connection checkout_service shippingservice 50051
+check_connection checkout_service shippingservice 50052
 
-check_connection checkout_service emailservice 8080
+check_connection checkout_service emailservice 8082
 
 echo "Integration tests passed"
