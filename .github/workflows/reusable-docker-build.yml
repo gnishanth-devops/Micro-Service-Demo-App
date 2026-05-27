@@ -127,6 +127,21 @@ jobs:
             docker push "$tag"
           done <<< "${{ steps.meta.outputs.tags }}"
 
+        # Export Image SHA
+      - name: Export Image SHA
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          mkdir -p promotion
+          echo "$SHORT_SHA" > promotion/${{ inputs.service }}.sha
+          cat promotion/${{ inputs.service }}.sha
+    
+        # Upload Promotion Metadata
+      - name: Upload Promotion Metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: promotion-metadata-${{ inputs.service }}
+          path: promotion/${{ inputs.service }}.sha
+
       # Get Image Digest for attest
       - name: Get Image Digest
         id: digest
