@@ -51,7 +51,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ inputs.image_name }}
+          images: ${{ inputs.repo_name }}
           tags: |
             type=sha,prefix=${{ inputs.service }}-sha-
             type=semver,pattern=${{ inputs.service }}-{{version}}
@@ -156,6 +156,6 @@ jobs:
       - name: Generate Artifact Attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: docker.io/${{ inputs.image_name }}
+          subject-name: docker.io/${{ inputs.repo_name }}
           subject-digest: ${{ steps.digest.outputs.digest }}
           push-to-registry: true
