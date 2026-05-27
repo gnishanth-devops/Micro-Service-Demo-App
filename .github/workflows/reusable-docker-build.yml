@@ -51,7 +51,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ inputs.image_name }}
+          images: ${{ inputs.repo_name }}
           tags: |
             type=sha,prefix=${{ inputs.service }}-sha-
             type=semver,pattern=${{ inputs.service }}-{{version}}
