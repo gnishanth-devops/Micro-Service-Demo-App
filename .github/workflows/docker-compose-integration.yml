@@ -6,7 +6,7 @@ on:
       compose_file:
         required: true
         type: string
-      image_name:
+      repo_name:
         required: true
         type: string
       changed_services:
@@ -31,21 +31,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # - name: Generate Compose Environment File
-      #   run: |
-      #     cat <<EOF > compose/.env.ci
-      #     FRONTEND_IMAGE=docker.io/${{ inputs.image_name }}:frontend-pr-${{ github.event.number }}
-      #     PRODUCTCATALOGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:product_catalog_service-pr-${{ github.event.number }}
-      #     CARTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:cart_service-pr-${{ github.event.number }}
-      #     RECOMMENDATIONSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:recommendation_service-pr-${{ github.event.number }}
-      #     CURRENCYSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:currency_service-pr-${{ github.event.number }}
-      #     CHECKOUTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:checkout_service-pr-${{ github.event.number }}
-      #     PAYMENTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:payment_service-pr-${{ github.event.number }}
-      #     SHIPPINGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:shipping_service-pr-${{ github.event.number }}
-      #     EMAILSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:email_service-pr-${{ github.event.number }}
-      #     ADSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:ad_service-pr-${{ github.event.number }}
-      #     EOF
 
       - name: Generate Compose Environment File
         env:
@@ -72,7 +57,7 @@ jobs:
               TAG="${SERVICE}-dev"
             fi
             ENV_NAME=$(echo "${SERVICE}_IMAGE" | tr '[:lower:]' '[:upper:]')
-            echo "${ENV_NAME}=docker.io/${{ inputs.image_name }}:${TAG}" >> compose/.env.ci
+            echo "${ENV_NAME}=docker.io/${{ inputs.repo_name }}:${TAG}" >> compose/.env.ci
           done
           cat compose/.env.ci
 
