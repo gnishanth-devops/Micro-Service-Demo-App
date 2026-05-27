@@ -87,7 +87,7 @@ jobs:
       # Start Ephemeral Integration Environment
       - name: Start Compose Environment
         run: |
-          docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} up -d --wait
+          docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} up --wait
 
       # Show Running Containers
       - name: Show Compose Status

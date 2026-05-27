@@ -19,6 +19,7 @@ services:
       CHECKOUT_SERVICE_ADDR: checkoutservice:5050
       AD_SERVICE_ADDR: adservice:9555
       SHIPPING_SERVICE_ADDR: shippingservice:50052
+      SHOPPING_ASSISTANT_SERVICE_ADDR: shoppingassistantservice:8082
     depends_on:
       - productcatalogservice
       - currencyservice
