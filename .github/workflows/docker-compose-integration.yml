@@ -55,15 +55,15 @@ jobs:
       # Start Ephemeral Integration Environment
       - name: Start Compose Environment
         run: |
-          docker compose \
-            --env-file compose/.env.ci \
-            -f ${{ inputs.compose_file }} \
-            up -d
+          docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} up -d --wait
 
       # Show Running Containers
       - name: Show Compose Status
         run: docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} ps
-        
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       # Wait For Frontend
       - name: Wait For Frontend
         run: |
