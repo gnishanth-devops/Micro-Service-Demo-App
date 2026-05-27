@@ -9,6 +9,9 @@ on:
       image_name:
         required: true
         type: string
+      changed_services:
+        required: true
+        type: string
 
 jobs:
   compose-integration:
@@ -46,7 +49,7 @@ jobs:
 
       - name: Generate Compose Environment File
         env:
-          CHANGED_SERVICES: '${{ needs.detect-changes.outputs.matrix }}'
+          CHANGED_SERVICES: ${{ inputs.changed_services }}
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
           SERVICES=(
