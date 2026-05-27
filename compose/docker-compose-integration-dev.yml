@@ -26,7 +26,7 @@ services:
       - boutique-network
 
   productcatalogservice:
-    image: ${PRODUCTCATALOGSERVICE_IMAGE}
+    image: ${PRODUCT_CATALOG_SERVICE_IMAGE}
     container_name: product_catalog_service
     restart: unless-stopped
     environment:
@@ -36,7 +36,7 @@ services:
       - boutique-network
 
   cartservice:
-    image: ${CARTSERVICE_IMAGE}
+    image: ${CART_SERVICE_IMAGE}
     container_name: cart_service
     restart: unless-stopped
     environment:
@@ -60,7 +60,7 @@ services:
       - boutique-network
 
   recommendationservice:
-    image: ${RECOMMENDATIONSERVICE_IMAGE}
+    image: ${RECOMMENDATION_SERVICE_IMAGE}
     container_name: recommendation_service
     restart: unless-stopped
     healthcheck:
@@ -79,7 +79,7 @@ services:
       - boutique-network
 
   currencyservice:
-    image: ${CURRENCYSERVICE_IMAGE}
+    image: ${CURRENCY_SERVICE_IMAGE}
     container_name: currency_service
     restart: unless-stopped
     healthcheck:
@@ -95,7 +95,7 @@ services:
       - boutique-network
 
   checkoutservice:
-    image: ${CHECKOUTSERVICE_IMAGE}
+    image: ${CHECKOUT_SERVICE_IMAGE}
     container_name: checkout_service
     restart: unless-stopped
     environment:
@@ -117,7 +117,7 @@ services:
       - boutique-network
 
   paymentservice:
-    image: ${PAYMENTSERVICE_IMAGE}
+    image: ${PAYMENT_SERVICE_IMAGE}
     container_name: payment_service
     restart: unless-stopped
     healthcheck:
@@ -133,7 +133,7 @@ services:
       - boutique-network
 
   shippingservice:
-    image: ${SHIPPINGSERVICE_IMAGE}
+    image: ${SHIPPING_SERVICE_IMAGE}
     container_name: shipping_service
     restart: unless-stopped
     environment:
@@ -143,7 +143,7 @@ services:
       - boutique-network
 
   emailservice:
-    image: ${EMAILSERVICE_IMAGE}
+    image: ${EMAIL_SERVICE_IMAGE}
     container_name: email_service
     restart: unless-stopped
     healthcheck:
@@ -159,7 +159,7 @@ services:
       - boutique-network
 
   adservice:
-    image: ${ADSERVICE_IMAGE}
+    image: ${AD_SERVICE_IMAGE}
     container_name: ad_service
     restart: unless-stopped
     healthcheck:
