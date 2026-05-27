@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-
 COMPOSE_FILE="compose/docker-compose-integration-dev.yml"
 
 echo "Waiting for compose stack to become healthy..."
