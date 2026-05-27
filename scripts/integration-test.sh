@@ -2,22 +2,36 @@
 
 set -e
 
-echo "Testing frontend -> productcatalogservice"
-docker exec frontend nc -z productcatalogservice 3550
+NETWORK=$(docker network ls --format '{{.Name}}' | grep '_boutique-network')
 
-echo "Testing frontend -> recommendationservice"
-docker exec frontend nc -z recommendationservice 8081
+check_connection() {
 
-echo "Testing cartservice -> redis"
-docker exec cart_service nc -z redis-cache 6379
+  SOURCE=$1
+  TARGET=$2
+  PORT=$3
 
-echo "Testing checkoutservice -> paymentservice"
-docker exec checkout_service nc -z paymentservice 50051
+  echo "Testing ${SOURCE} -> ${TARGET}:${PORT}"
 
-echo "Testing checkoutservice -> shippingservice"
-docker exec checkout_service nc -z shippingservice 50051
+  docker run --rm \
+    --network $NETWORK \
+    alpine:3.22 \
+    sh -c "
+      apk add --no-cache netcat-openbsd >/dev/null &&
+      nc -z ${TARGET} ${PORT}
+    "
 
-echo "Testing checkoutservice -> emailservice"
-docker exec checkout_service nc -z emailservice 8080
+}
+
+check_connection frontend productcatalogservice 3550
+
+check_connection frontend recommendationservice 8081
+
+check_connection cart_service redis-cache 6379
+
+check_connection checkout_service paymentservice 50051
+
+check_connection checkout_service shippingservice 50052
+
+check_connection checkout_service emailservice 8082
 
 echo "Integration tests passed"

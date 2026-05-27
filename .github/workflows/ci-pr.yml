@@ -86,3 +86,4 @@ jobs:
     with:
       compose_file: compose/docker-compose-integration-dev.yml
       image_name: gnishanth777/online_boutique
+      changed_services: ${{ needs.detect-changes.outputs.matrix }}
