@@ -81,12 +81,8 @@ jobs:
 
   compose-validation:
     needs: [detect-changes,service-build]
-    if: needs.detect-changes.outputs.matrix != '[]'
-    strategy:
-      fail-fast: false
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     uses: ./.github/workflows/docker-compose-integration.yml
     secrets: inherit
     with:
       compose_file: compose/docker-compose-integration-dev.yml
+      image_name: gnishanth777/online_boutique

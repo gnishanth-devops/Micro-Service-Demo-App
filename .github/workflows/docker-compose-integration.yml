@@ -6,6 +6,9 @@ on:
       compose_file:
         required: true
         type: string
+      image_name:
+        required: true
+        type: string
 
 jobs:
   compose-integration:
@@ -17,7 +20,7 @@ jobs:
     steps:
       # Checkout Repository
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Docker Login
       - name: Login to Docker Hub
@@ -29,16 +32,16 @@ jobs:
       - name: Generate Compose Environment File
         run: |
           cat <<EOF > compose/.env.ci
-          FRONTEND_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/frontend:frontend-pr-${{ github.event.number }}
-          PRODUCTCATALOGSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/product_catalog_service:product_catalog_service-pr-${{ github.event.number }}
-          CARTSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/cart_service:cart_service-pr-${{ github.event.number }}
-          RECOMMENDATIONSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/recommendation_service:recommendation_service-pr-${{ github.event.number }}
-          CURRENCYSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/currency_service:currency_service-pr-${{ github.event.number }}
-          CHECKOUTSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/checkout_service:checkout_service-pr-${{ github.event.number }}
-          PAYMENTSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/payment_service:payment_service-pr-${{ github.event.number }}
-          SHIPPINGSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/shipping_service:shipping_service-pr-${{ github.event.number }}
-          EMAILSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/email_service:email_service-pr-${{ github.event.number }}
-          ADSERVICE_IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/ad_service:ad_service-pr-${{ github.event.number }}
+          FRONTEND_IMAGE=docker.io/${{ inputs.image_name }}:frontend-pr-${{ github.event.number }}
+          PRODUCTCATALOGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:product_catalog_service-pr-${{ github.event.number }}
+          CARTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:cart_service-pr-${{ github.event.number }}
+          RECOMMENDATIONSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:recommendation_service-pr-${{ github.event.number }}
+          CURRENCYSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:currency_service-pr-${{ github.event.number }}
+          CHECKOUTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:checkout_service-pr-${{ github.event.number }}
+          PAYMENTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:payment_service-pr-${{ github.event.number }}
+          SHIPPINGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:shipping_service-pr-${{ github.event.number }}
+          EMAILSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:email_service-pr-${{ github.event.number }}
+          ADSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:ad_service-pr-${{ github.event.number }}
           EOF
 
       # Pull Candidate Images
