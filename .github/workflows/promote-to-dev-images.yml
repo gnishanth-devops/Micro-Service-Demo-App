@@ -1,4 +1,4 @@
-name: Promote to Dev Images
+name: Promote to Dev Images candidtaes
 
 on:
   push:
