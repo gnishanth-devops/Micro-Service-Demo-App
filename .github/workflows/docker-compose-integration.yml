@@ -6,7 +6,7 @@ on:
       compose_file:
         required: true
         type: string
-      image_name:
+      repo_name:
         required: true
         type: string
       changed_services:
@@ -57,7 +57,7 @@ jobs:
               TAG="${SERVICE}-dev"
             fi
             ENV_NAME=$(echo "${SERVICE}_IMAGE" | tr '[:lower:]' '[:upper:]')
-            echo "${ENV_NAME}=docker.io/${{ inputs.image_name }}:${TAG}" >> compose/.env.ci
+            echo "${ENV_NAME}=docker.io/${{ inputs.repo_name }}:${TAG}" >> compose/.env.ci
           done
           cat compose/.env.ci
 
