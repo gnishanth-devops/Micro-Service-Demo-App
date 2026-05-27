@@ -2,7 +2,7 @@
 
 set -e
 
-NETWORK=$(docker network ls --format '{{.Name}}' | grep 'boutique-network')
+NETWORK=$(docker network ls --format '{{.Name}}' | grep '_boutique-network')
 
 check_connection() {
 
