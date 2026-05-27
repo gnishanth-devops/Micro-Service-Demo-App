@@ -91,7 +91,7 @@ jobs:
             -f ${{ inputs.compose_file }} \
             logs
 
-      # Destroy Ephemeral Environment
+      # Destroy Ephemeral Environments
       - name: Cleanup Compose Environment
         if: always()
         run: |
