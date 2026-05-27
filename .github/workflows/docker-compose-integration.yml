@@ -62,7 +62,8 @@ jobs:
       # Show Running Containers
       - name: Show Compose Status
         run: docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} ps
-
+        
+      # install jq tools
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
