@@ -2,7 +2,7 @@
 
 set -e
 
-NETWORK="compose_boutique-network"
+NETWORK=$(docker network ls --format '{{.Name}}' | grep 'boutique-network')
 
 check_connection() {
 
