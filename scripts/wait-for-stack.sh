@@ -1,18 +1,36 @@
+#!/bin/bash
+
 set -e
 
-echo "Waiting for frontend availability"
+COMPOSE_FILE="compose/docker-compose-integration-dev.yml"
+
+echo "Waiting for compose stack to become healthy..."
 
 for i in {1..30}; do
 
-  if curl -f http://localhost:8080 > /dev/null 2>&1; then
-    echo "Frontend is available"
-    exit 0
+  FAILED_CONTAINERS=$(docker compose -f $COMPOSE_FILE ps --format json | jq -r '
+    .[] | select(
+      (.State != "running") or
+      (.Health == "unhealthy")
+    ) | .Name
+  ')
+
+  if [ -z "$FAILED_CONTAINERS" ]; then
+    echo "All services are healthy"
+    break
   fi
 
-  echo "Waiting for frontend..."
-  sleep 5
+  echo "Still waiting for services..."
+  echo "$FAILED_CONTAINERS"
+
+  sleep 10
 
 done
 
-echo "Frontend failed to start"
-exit 1
+echo "Running frontend smoke test..."
+
+curl -f http://localhost:8080 > /dev/null
+
+echo "Frontend reachable"
+
+echo "Compose integration validation successful"
