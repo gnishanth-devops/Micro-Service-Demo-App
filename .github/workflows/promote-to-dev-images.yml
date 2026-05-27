@@ -53,10 +53,16 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set Short SHA
-        id: vars
+      - name: Download Promotion Metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: promotion-metadata-${{ matrix.service }}
+          path: promotion
+
+      - name: Read SHA
         run: |
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          SHA=$(cat promotion/${{ matrix.service }}.sha)
+          echo "SHA=$SHORT_SHA" >> $GITHUB_ENV  
 
       - name: Pull SHA Image
         run: |
