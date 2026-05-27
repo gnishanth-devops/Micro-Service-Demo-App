@@ -1,0 +1,52 @@
+name: Promote Images To Dev
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  promote-dev-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - frontend
+          - product_catalog_service
+          - cart_service
+          - payment_service
+          - checkout_service
+          - recommendation_service
+          - currency_service
+          - shipping_service
+          - email_service
+          - ad_service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Docker Login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull Immutable SHA Image
+        run: |
+          docker pull \
+            gnishanth777/online_boutique:${{ matrix.service }}-sha-${GITHUB_SHA::7}
+
+      - name: Promote Dev Tag
+        run: |
+          docker tag \
+            gnishanth777/online_boutique:${{ matrix.service }}-sha-${GITHUB_SHA::7} \
+            gnishanth777/online_boutique:${{ matrix.service }}-dev
+
+      - name: Push Dev Tag
+        run: |
+          docker push \
+            gnishanth777/online_boutique:${{ matrix.service }}-dev
