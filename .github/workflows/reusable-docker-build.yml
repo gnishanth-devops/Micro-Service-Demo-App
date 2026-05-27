@@ -54,7 +54,6 @@ jobs:
           images: ${{ inputs.image_name }}
           tags: |
             type=sha,prefix=${{ inputs.service }}-sha-
-            type=raw,value=${{ inputs.service }}-pr-${{ github.event.number }}
             type=semver,pattern=${{ inputs.service }}-{{version}}
 
       # Docker Buildx
