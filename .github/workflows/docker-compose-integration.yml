@@ -29,20 +29,49 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # - name: Generate Compose Environment File
+      #   run: |
+      #     cat <<EOF > compose/.env.ci
+      #     FRONTEND_IMAGE=docker.io/${{ inputs.image_name }}:frontend-pr-${{ github.event.number }}
+      #     PRODUCTCATALOGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:product_catalog_service-pr-${{ github.event.number }}
+      #     CARTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:cart_service-pr-${{ github.event.number }}
+      #     RECOMMENDATIONSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:recommendation_service-pr-${{ github.event.number }}
+      #     CURRENCYSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:currency_service-pr-${{ github.event.number }}
+      #     CHECKOUTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:checkout_service-pr-${{ github.event.number }}
+      #     PAYMENTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:payment_service-pr-${{ github.event.number }}
+      #     SHIPPINGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:shipping_service-pr-${{ github.event.number }}
+      #     EMAILSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:email_service-pr-${{ github.event.number }}
+      #     ADSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:ad_service-pr-${{ github.event.number }}
+      #     EOF
+
       - name: Generate Compose Environment File
+        env:
+          CHANGED_SERVICES: '${{ needs.detect-changes.outputs.matrix }}'
         run: |
-          cat <<EOF > compose/.env.ci
-          FRONTEND_IMAGE=docker.io/${{ inputs.image_name }}:frontend-pr-${{ github.event.number }}
-          PRODUCTCATALOGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:product_catalog_service-pr-${{ github.event.number }}
-          CARTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:cart_service-pr-${{ github.event.number }}
-          RECOMMENDATIONSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:recommendation_service-pr-${{ github.event.number }}
-          CURRENCYSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:currency_service-pr-${{ github.event.number }}
-          CHECKOUTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:checkout_service-pr-${{ github.event.number }}
-          PAYMENTSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:payment_service-pr-${{ github.event.number }}
-          SHIPPINGSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:shipping_service-pr-${{ github.event.number }}
-          EMAILSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:email_service-pr-${{ github.event.number }}
-          ADSERVICE_IMAGE=docker.io/${{ inputs.image_name }}:ad_service-pr-${{ github.event.number }}
-          EOF
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          SERVICES=(
+            frontend
+            product_catalog_service
+            cart_service
+            recommendation_service
+            currency_service
+            checkout_service
+            payment_service
+            shipping_service
+            email_service
+            ad_service
+          )
+          > compose/.env.ci
+          for SERVICE in "${SERVICES[@]}"; do
+            if echo "$CHANGED_SERVICES" | jq -r '.[]' | grep -qx "$SERVICE"; then
+              TAG="${SERVICE}-sha-${SHORT_SHA}"
+            else
+              TAG="${SERVICE}-dev"
+            fi
+            ENV_NAME=$(echo "${SERVICE}_IMAGE" | tr '[:lower:]' '[:upper:]')
+            echo "${ENV_NAME}=docker.io/${{ inputs.image_name }}:${TAG}" >> compose/.env.ci
+          done
+          cat compose/.env.ci
 
       # Pull Candidate Images
       - name: Pull Candidate Images
@@ -60,15 +89,6 @@ jobs:
       # Show Running Containers
       - name: Show Compose Status
         run: docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} ps
-
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      # Wait For Frontend
-      - name: Wait For Frontend
-        run: |
-          chmod +x scripts/wait-for-stack.sh
-          ./scripts/wait-for-stack.sh
 
       # Run Integration Tests
       - name: Run Integration Tests
