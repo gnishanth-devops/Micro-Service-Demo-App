@@ -62,11 +62,8 @@ jobs:
 
       # Show Running Containers
       - name: Show Compose Status
-        run: docker compose \
-          --env-file compose/.env.ci \
-          -f ${{ inputs.compose_file }} \
-          ps
-
+        run: docker compose --env-file compose/.env.ci -f ${{ inputs.compose_file }} ps
+        
       # Wait For Frontend
       - name: Wait For Frontend
         run: |

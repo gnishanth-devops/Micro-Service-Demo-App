@@ -53,7 +53,7 @@ jobs:
         with:
           images: ${{ inputs.image_name }}
           tags: |
-            type=raw,value=${{ inputs.service }}-latest
+            type=sha,prefix={{branch}}-
             type=raw,value=${{ inputs.service }}-pr-${{ github.event.number }}
             type=semver,pattern=${{ inputs.service }}-{{version}}
 
