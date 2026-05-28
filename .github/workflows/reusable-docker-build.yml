@@ -75,8 +75,8 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ inputs.service }}.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ inputs.service }}
+          cache-to: type=gha,mode=min,scope=${{ inputs.service }}
 
       # Filesystem Vulnerability Scan
       - name: Trivy Filesystem Scan
