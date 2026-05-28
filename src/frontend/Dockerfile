@@ -1,4 +1,4 @@
-# frontend services top
+# frontend services
 
 ARG BUILDPLATFORM=linux/amd64
 

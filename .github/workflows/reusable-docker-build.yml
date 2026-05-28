@@ -10,6 +10,10 @@ on:
         required: true
         type: string
 
+env:
+  BUCKET_NAME: "github-actions-test-gnishanth"
+  AWS_REGION: "us-east-1"
+
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
@@ -71,8 +75,8 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ inputs.service }}.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ inputs.service }}
+          cache-to: type=gha,mode=min,scope=${{ inputs.service }}
 
       # Filesystem Vulnerability Scan
       - name: Trivy Filesystem Scan
@@ -127,20 +131,41 @@ jobs:
             docker push "$tag"
           done <<< "${{ steps.meta.outputs.tags }}"
 
-        # Export Image SHA
-      - name: Export Image SHA
+      # Configure aws creds
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::719640820386:role/github-actions-role
+          role-session-name: githubactions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create Promotion Metadata
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
-          mkdir -p promotion
-          echo "$SHORT_SHA" > promotion/${{ inputs.service }}.sha
-          cat promotion/${{ inputs.service }}.sha
-    
-        # Upload Promotion Metadata
-      - name: Upload Promotion Metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: promotion-metadata-${{ inputs.service }}
-          path: promotion/${{ inputs.service }}.sha
+          cat <<EOF > promotion.json
+          {
+            "service": "${{ inputs.service }}",
+            "sha": "${SHORT_SHA}",
+            "image": "${{ inputs.repo_name }}:${{ inputs.service }}-sha-${SHORT_SHA}",
+            "pr": "${{ github.event.number }}",
+            "branch": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}"
+          }
+          EOF
+          cat promotion.json
+
+      - name: Upload Immutable Promotion Metadata
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          aws s3 cp \
+            promotion.json \
+            s3://${{ env.BUCKET_NAME }}/promotion/${{ inputs.service }}/history/sha-${SHORT_SHA}.json
+
+      - name: Update Latest Promotion Pointer
+        run: |
+          aws s3 cp \
+            promotion.json \
+            s3://${{ env.BUCKET_NAME }}/promotion/${{ inputs.service }}/latest.json
 
       # Get Image Digest for attest
       - name: Get Image Digest

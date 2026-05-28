@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - develop
+env:
+  BUCKET_NAME: "github-actions-test-gnishanth"
+  AWS_REGION: "us-east-1"
 
 jobs:
   detect-changes:
@@ -43,7 +46,6 @@ jobs:
       contents: read
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -53,29 +55,35 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Download Promotion Metadata
-        uses: actions/download-artifact@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: promotion-metadata-${{ matrix.service }}
-          path: promotion
+          role-to-assume: arn:aws:iam::719640820386:role/github-actions-role
+          role-session-name: githubactions
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Read SHA
+      - name: Download Promotion Metadata
         run: |
-          SHA=$(cat promotion/${{ matrix.service }}.sha)
-          echo "SHA=$SHORT_SHA" >> $GITHUB_ENV
+          aws s3 cp \
+            s3://${{ env.BUCKET_NAME }}/promotion/${{ matrix.service }}/latest.json \
+            promotion.json
+
+      - name: Read Promotion Metadata
+        run: |
+          SHA=$(jq -r '.sha' promotion.json)
+          IMAGE=$(jq -r '.image' promotion.json)
+          echo "SHA=$SHA" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          cat promotion.json
 
       - name: Pull SHA Image
         run: |
-          docker pull \
-            docker.io/${{ secrets.DOCKER_USERNAME }}/online_boutique:${{ matrix.service }}-sha-${SHORT_SHA}
+          docker pull ${IMAGE}
 
-      - name: Promote Dev Tag
+      - name: Promote Dev Image
         run: |
           docker tag \
-            docker.io/${{ secrets.DOCKER_USERNAME }}/online_boutique:${{ matrix.service }}-sha-${SHORT_SHA} \
+            ${IMAGE} \
             docker.io/${{ secrets.DOCKER_USERNAME }}/online_boutique:${{ matrix.service }}-dev
-
-      - name: Push Dev Tag
-        run: |
           docker push \
             docker.io/${{ secrets.DOCKER_USERNAME }}/online_boutique:${{ matrix.service }}-dev
