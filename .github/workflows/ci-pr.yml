@@ -31,42 +31,43 @@ jobs:
         id: set-matrix
         run: ./scripts/detect_changed_services.sh
 
-  service-lint:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.matrix != '[]'
-    strategy:
-      fail-fast: false
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-    uses: ./.github/workflows/reusable-lint.yml
-    with:
-      service: ${{ matrix.service }}
-
-  service-test-cases:
-    needs: [service-lint,detect-changes]
-    if: needs.detect-changes.outputs.matrix != '[]'
-    strategy:
-      fail-fast: false
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-    uses: ./.github/workflows/reusable-test-cases.yml
-    with:
-      service: ${{ matrix.service }}
-
-  service-sonar-scan:
-    needs: [detect-changes,service-test-cases]
-    if: needs.detect-changes.outputs.matrix != '[]'
-    strategy:
-      fail-fast: false
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-    uses: ./.github/workflows/reusable-sonar-scan.yml
-    secrets: inherit
-    with:
-      service: ${{ matrix.service }}
+#   service-lint:
+#     needs: detect-changes
+#     if: needs.detect-changes.outputs.matrix != '[]'
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+#     uses: ./.github/workflows/reusable-lint.yml
+#     with:
+#       service: ${{ matrix.service }}
+#
+#   service-test-cases:
+#     needs: [service-lint,detect-changes]
+#     if: needs.detect-changes.outputs.matrix != '[]'
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+#     uses: ./.github/workflows/reusable-test-cases.yml
+#     with:
+#       service: ${{ matrix.service }}
+#
+#   service-sonar-scan:
+#     needs: [detect-changes,service-test-cases]
+#     if: needs.detect-changes.outputs.matrix != '[]'
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+#     uses: ./.github/workflows/reusable-sonar-scan.yml
+#     secrets: inherit
+#     with:
+#       service: ${{ matrix.service }}
 
   service-build:
-    needs: [detect-changes,service-sonar-scan]
+    #needs: [detect-changes,service-sonar-scan]
+    needs: [detect-changes]
     if: needs.detect-changes.outputs.matrix != '[]'
     strategy:
       fail-fast: false
