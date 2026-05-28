@@ -42,16 +42,17 @@ jobs:
 #     with:
 #       service: ${{ matrix.service }}
 #
-#   service-test-cases:
-#     needs: [service-lint,detect-changes]
-#     if: needs.detect-changes.outputs.matrix != '[]'
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-#     uses: ./.github/workflows/reusable-test-cases.yml
-#     with:
-#       service: ${{ matrix.service }}
+  service-test-cases:
+    #needs: [service-lint,detect-changes]
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    uses: ./.github/workflows/reusable-test-cases.yml
+    with:
+      service: ${{ matrix.service }}
 #
 #   service-sonar-scan:
 #     needs: [detect-changes,service-test-cases]
